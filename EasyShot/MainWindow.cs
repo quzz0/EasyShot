@@ -67,6 +67,7 @@ public partial class MainWindow: Gtk.Window
 
 		Gtk.Window w = new Gtk.Window (null);
 		w.Opacity = 0.0;
+		w.KeepAbove = true;
 
 		DrawingArea da = new DrawingArea ();
 		w.Add(da);
@@ -113,6 +114,7 @@ public partial class MainWindow: Gtk.Window
 
 	private void ScribbleMotionNotify (object o, MotionNotifyEventArgs args)
 	{
+		/*
 		if (!_selecting) 
 			return;
 
@@ -137,19 +139,42 @@ public partial class MainWindow: Gtk.Window
 		this.screenPanel.Put (closeButton, (wight / 2) - (buttonWidth / 2), (height / 2) - buttonHeight + 10 + buttonHeight + 10);
 
 		//this.screenPanel.ShowAll();
-
+		*/
 		args.RetVal = true;
 	}
 
 	private void ScribbleButtonPress (object o, ButtonPressEventArgs args)
 	{
 		EventButton ev = args.Event;
-		this.Move ((int)ev.X - 2, (int)ev.Y + 64); //2, 64 - idk wtf
 
-		_selecting = true;
+		if (args.Event.Button == 1) {
+			this.Move ((int)ev.X - 2, (int)ev.Y + 64); //2, 64 - idk wtf
+			//_selecting = true;
+		}
+		if (args.Event.Button == 2) {
+			this.GrabFocus ();
+			this.Present ();
+		}
+		if (args.Event.Button == 3) {
+			int wight, height, x, y = 0;
+			this.GetPosition (out x, out y);
+			this.GetSize (out wight, out height);
 
-		this.GrabFocus ();
-		this.Present ();
+			this.Resize ((int)ev.X - x , (int)ev.Y - y + 64);
+
+			//redraw buttons in center
+			this.screenPanel.Remove (logLabel);
+			this.screenPanel.Remove (screenButton);
+			this.screenPanel.Remove (copyButton);
+			this.screenPanel.Remove (closeButton);
+
+			this.screenPanel.Put (logLabel, (wight / 2) - (buttonWidth / 2), (height / 2) - buttonHeight - buttonHeight - 50);
+			this.screenPanel.Put (screenButton, (wight / 2) - (buttonWidth / 2), (height / 2) - buttonHeight - buttonHeight);
+			this.screenPanel.Put (copyButton, (wight / 2) - (buttonWidth / 2), (height / 2) - buttonHeight + 10);
+			this.screenPanel.Put (closeButton, (wight / 2) - (buttonWidth / 2), (height / 2) - buttonHeight + 10 + buttonHeight + 10);
+
+			//_selecting = false;
+		}
 
 		args.RetVal = true;
 	}
@@ -159,7 +184,7 @@ public partial class MainWindow: Gtk.Window
 		//this.GrabFocus ();
 		//this.Present ();
 
-		_selecting = false;
+		//_selecting = false;
 		args.RetVal = true;
 	}
 
